@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Protocol - The Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        header h1 {
+            color: #00ff41;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-panel, .output-panel {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #252525;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff41;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            color: #e0e0e0;
+            box-sizing: border-box; /* Important for padding */
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .btn-primary {
+            background-color: #00ff41;
+            color: #121212;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #00cc33;
+        }
+
+        .profile-output {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        
+        .network-graph {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .network-graph li {
+            background-color: #2a2a2a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #4a9eff;
+            position: relative;
+        }
+        
+        .network-graph li::before {
+            content: '👤';
+            position: absolute;
+            left: -20px;
+            top: 10px;
+            font-size: 16px;
+        }
+        
+        .analysis-section {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .analysis-section h3 {
+            color: #ff4141;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-user-ninja"></i> The Profile</h1>
+        </header>
+        <main>
+            <section class="input-panel">
+                <h2>Target Input</h2>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="target-name">Full Name:</label>
+                        <input type="text" id="target-name" placeholder="e.g., John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="target-email">Email Address:</label>
+                        <input type="email" id="target-email" placeholder="e.g., john.doe@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="target-username">Common Username:</label>
+                        <input type="text" id="target-username" placeholder="e.g., jdoe123">
+                    </div>
+                    <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Generate Profile</button>
+                </form>
+            </section>
+
+            <section class="output-panel">
+                <h2>Analysis Output</h2>
+                <div id="profile-output" class="profile-output">
+                    <p class="placeholder">Input target data to generate a profile...</p>
+                </div>
+                
+                <div id="associates-panel" class="analysis-section hidden">
+                    <h3>Known Associates</h3>
+                    <ul id="associates-list" class="network-graph">
+                        <!-- Associates will be dynamically added here -->
+                    </ul>
+                </div>
+
+                <div id="behavioral-panel" class="analysis-section hidden">
+                    <h3>Behavioral Analysis (AI Assessment)</h3>
+                    <div id="behavioral-text" class="profile-output">
+                        <!-- AI analysis will be added here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileForm = document.getElementById('profile-form');
+            const profileOutput = document.getElementById('profile-output');
+            const associatesPanel = document.getElementById('associates-panel');
+            const associatesList = document.getElementById('associates-list');
+            const behavioralPanel = document.getElementById('behavioral-panel');
+            const behavioralText = document.getElementById('behavioral-text');
+
+            // --- SIMULATED AI BRAIN ---
+            const generateProfile = (name, email, username) => {
+                let report = `[PROFILE INITIALIZED]\n\n`;
+                report += `TARGET: ${name || 'N/A'}\n`;
+                report += `EMAIL: ${email || 'N/A'}\n`;
+                report += `ALIAS: ${username || 'N/A'}\n\n`;
+                
+                report += `[DIGITAL FOOTPRINT ANALYSIS]\n`;
+                const platforms = ['Twitter', 'Instagram', 'GitHub', 'LinkedIn', 'Reddit'];
+                const foundPlatforms = [];
+                // Simulate finding some platforms
+                if (username) {
+                    foundPlatforms.push('GitHub', 'Reddit');
+                    report += `> GitHub: Profile found. User 'github.com/${username}'. Activity suggests interest in web development and privacy tools.\n`;
+                    report += `> Reddit: Profile found. User 'u/${username}'. Frequent poster in r/privacy and r/technology.\n`;
+                }
+                if (email) {
+                    foundPlatforms.push('LinkedIn');
+                    report += `> LinkedIn: Profile found via email search. Lists current employer as 'Tech Corp Inc'.\n`;
+                }
+                // Simulate not finding others
+                platforms.forEach(p => {
+                    if (!foundPlatforms.includes(p)) {
+                        report += `> ${p}: No public profile found with provided data.\n`;
+                    }
+                });
+
+                // --- ASSOCIATES LOGIC ---
+                let associates = [];
+                if (name === 'John Doe') { // Pre-seeded example
+                    associates = [
+                        { name: 'Jane Smith', relationship: 'Spouse (LinkedIn)', confidence: 'High' },
+                        { name: 'Mike Ross', relationship: 'Colleague (GitHub)', confidence: 'Medium' },
+                        { name: 'User_99', relationship: 'Frequent Reddit Interactor', confidence: 'Low' }
+                    ];
+                } else if (username) {
+                    associates = [
+                        { name: 'DevMaster', relationship: 'GitHub Collaborator', confidence: 'Medium' },
+                        { name: 'CryptoKing', relationship: 'Reddit Follower', confidence: 'Low' }
+                    ];
+                }
+                
+                // --- BEHAVIORAL ANALYSIS LOGIC ---
+                let analysis = '';
+                if (foundPlatforms.includes('GitHub') && foundPlatforms.includes('Reddit')) {
+                    analysis += `ASSESSMENT: Target is tech-savvy and privacy-conscious. Digital presence is primarily on niche, anonymous platforms (GitHub, Reddit) rather than mainstream social media (Facebook, Instagram). This suggests a desire to control their public narrative and a higher-than-average operational security awareness.\n\n`;
+                }
+                if (foundPlatforms.includes('LinkedIn')) {
+                    analysis += `ASSESSMENT: Target maintains a professional public profile. This creates a potential vulnerability. Professional network can be leveraged for social engineering or to verify routine (e.g., commute, work hours).\n\n`;
+                }
+                analysis += `PREDICTABLE PATTERNS: Based on public posting times, activity peaks during weekday evenings (19:00-22:00 UTC). This is the optimal window for digital communication attempts that are likely to be seen.\n\n`;
+                analysis += `WEAKNESS: The use of a common username ('${username}') across multiple platforms creates a linkable chain. If one account is compromised, others can be discovered easily. This is a significant security flaw.`;
+
+                return { report, associates, analysis };
+            };
+
+            const displayProfile = (profileData) => {
+                profileOutput.textContent = profileData.report;
+                
+                // Clear previous associates
+                associatesList.innerHTML = '';
+                if (profileData.associates.length > 0) {
+                    associatesPanel.classList.remove('hidden');
+                    profileData.associates.forEach(assoc => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<b>${assoc.name}</b> - <i>${assoc.relationship}</i> [Confidence: ${assoc.confidence}]`;
+                        associatesList.appendChild(li);
+                    });
+                } else {
+                    associatesPanel.classList.add('hidden');
+                }
+
+                if (profileData.analysis) {
+                    behavioralPanel.classList.remove('hidden');
+                    behavioralText.textContent = profileData.analysis;
+                } else {
+                    behavioralPanel.classList.add('hidden');
+                }
+            };
+
+            profileForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('target-name').value;
+                const email = document.getElementById('target-email').value;
+                const username = document.getElementById('target-username').value;
+
+                if (!name && !email && !username) {
+                    profileOutput.textContent = '[ERROR] At least one input field is required.';
+                    associatesPanel.classList.add('hidden');
+                    behavioralPanel.classList.add('hidden');
+                    return;
+                }
+
+                const profileData = generateProfile(name, email, username);
+                displayProfile(profileData);
+            });
+        });
+    </script>
+</body>
+</html>
