@@ -2,399 +2,832 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Protocol - Command Center</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pac-Man Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS STYLES --- */
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #252525;
-            --text-primary: #e0e0e0;
-            --accent-green: #00ff41;
-            --accent-red: #ff4141;
-            --accent-blue: #4a9eff;
-        }
-
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Orbitron', 'Courier New', monospace;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+            font-family: 'Press Start 2P', cursive;
+            background-color: #0b0b12;
+            touch-action: none; /* Prevents unwanted browser scrolling on mobile touch */
+            user-select: none;
+            -webkit-user-select: none;
         }
-
-        .command-center {
-            display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            grid-template-rows: 60px 1fr;
-            gap: 10px;
-            height: 100vh;
-            padding: 10px;
-            background: linear-gradient(145deg, var(--bg-primary), var(--bg-secondary));
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            touch-action: none;
         }
-
-        header {
-            grid-column: 1 / -1;
-            background-color: var(--bg-tertiary);
-            border-bottom: 2px solid var(--accent-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 20px;
+        .arcade-border {
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.8);
         }
-
-        header h1 {
-            color: var(--accent-green);
-            font-size: 1.8em;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin: 0;
-            text-shadow: 0 0 10px var(--accent-green);
+        .glow-text {
+            text-shadow: 0 0 8px currentColor;
         }
-
-        .sidebar {
-            background-color: var(--bg-tertiary);
-            border-right: 1px solid var(--accent-green);
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .sidebar h2 {
-            color: var(--accent-blue);
-            border-bottom: 1px solid var(--accent-blue);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 10px;
-            overflow: hidden;
-        }
-
-        .panel {
-            background-color: var(--bg-tertiary);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .panel h3 {
-            color: var(--accent-green);
-            margin-top: 0;
-            border-bottom: 1px solid var(--accent-green);
-            padding-bottom: 5px;
-        }
-
-        .right-bar {
-            background-color: var(--bg-tertiary);
-            border-left: 1px solid var(--accent-green);
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .right-bar h2 {
-            color: var(--accent-red);
-            border-bottom: 1px solid var(--accent-red);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--accent-green);
-            font-size: 0.9em;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 8px;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--accent-green);
-            border-radius: 4px;
-            color: var(--text-primary);
-            box-sizing: border-box;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-green);
-            color: var(--bg-primary);
-        }
-        .btn-primary:hover { background-color: #00cc33; }
-
-        .btn-danger {
-            background-color: var(--accent-red);
-            color: var(--text-primary);
-        }
-        .btn-danger:hover { background-color: #cc0000; }
-
-        .output-log {
-            background-color: var(--bg-secondary);
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            white-space: pre-wrap;
-        }
-
-        .target-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .target-list li {
-            background-color: var(--bg-secondary);
-            padding: 10px;
-            border-left: 3px solid var(--accent-blue);
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .target-list li:hover {
-            background-color: #333;
-        }
-
-        .target-list li.active {
-            background-color: #444;
-            border-left-color: var(--accent-green);
-        }
-
-        .map-placeholder {
-            width: 100%;
-            height: 100%;
-            background: url('https://via.placeholder.com/400x300/1a1a1a/00ff41?text=TARGET+MAP') no-repeat center center;
-            background-size: cover;
-            border-radius: 5px;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .status-online { background-color: var(--accent-green); }
-        .status-offline { background-color: var(--accent-red); }
-        .status-unknown { background-color: #888; }
-
     </style>
 </head>
-<body>
+<body class="min-h-screen text-white flex flex-col items-center justify-between p-2 md:p-4 overflow-hidden select-none">
 
-    <div class="command-center">
-        <header>
-            <h1><i class="fas fa-satellite-dish"></i> GHOST PROTOCOL</h1>
-        </header>
-
-        <nav class="sidebar">
-            <h2>Active Targets</h2>
-            <ul id="target-list" class="target-list">
-                <!-- Targets will be added here -->
-            </ul>
-            <button id="add-target-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Target</button>
-        </nav>
-
-        <main class="main-content">
-            <section id="profile-panel" class="panel">
-                <h3><i class="fas fa-user-ninja"></i> Profile Analysis</h3>
-                <div id="profile-output" class="output-log">
-                    <p>No target selected. Add a target to begin.</p>
-                </div>
-            </section>
-
-            <section id="network-panel" class="panel">
-                <h3><i class="fas fa-network-wired"></i> Network Topology</h3>
-                <div id="network-output" class="output-log">
-                    <p>No target selected.</p>
-                </div>
-            </section>
-
-            <section id="timeline-panel" class="panel">
-                <h3><i class="fas fa-clock"></i> Mission Timeline</h3>
-                <div id="timeline-output" class="output-log">
-                    <p>No objective set.</p>
-                </div>
-            </section>
-
-            <section id="map-panel" class="panel">
-                <h3><i class="fas fa-map-marked-alt"></i> Geospatial View</h3>
-                <div class="map-placeholder"></div>
-            </section>
-        </main>
-
-        <aside class="right-bar">
-            <h2>Control & Comms</h2>
-            <div class="form-group">
-                <label for="quick-recon">Quick Recon</label>
-                <input type="text" id="quick-recon" placeholder="Username, IP, or Domain">
+    <!-- Header / Scoreboard -->
+    <header class="w-full max-w-lg flex flex-col items-center gap-2 mb-2">
+        <h1 class="text-2xl md:text-3xl text-yellow-400 font-bold tracking-wider glow-text my-1">PAC-MAN</h1>
+        
+        <div class="w-full flex justify-between items-center text-xs md:text-sm bg-gray-900/80 px-4 py-2 rounded-lg border border-gray-800">
+            <div class="flex flex-col items-start">
+                <span class="text-gray-400 text-[10px]">1UP</span>
+                <span id="score" class="text-white">00</span>
             </div>
-            <button id="quick-recon-btn" class="btn btn-primary"><i class="fas fa-search"></i> Run</button>
-            
-            <hr style="margin: 20px 0; border: 1px solid #555;">
-
-            <h3>System Log</h3>
-            <div id="system-log" class="output-log">
-                <p>[SYSTEM] Command Center online. All systems nominal.</p>
+            <div class="flex flex-col items-center">
+                <span class="text-gray-400 text-[10px]">HIGH SCORE</span>
+                <span id="highScore" class="text-yellow-400">00</span>
             </div>
-            <button id="clear-log-btn" class="btn btn-danger">Clear Log</button>
-        </aside>
+            <div class="flex flex-col items-end">
+                <span class="text-gray-400 text-[10px]">LEVEL</span>
+                <span id="level" class="text-cyan-400">1</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Canvas Container -->
+    <main class="relative flex flex-col items-center justify-center my-auto">
+        <div class="relative arcade-border bg-black p-2 rounded-xl border-4 border-blue-900 touch-none">
+            <canvas id="gameCanvas" class="block rounded cursor-pointer"></canvas>
+
+            <!-- Swipe Instruction Indicator Layer -->
+            <div id="swipeHint" class="absolute inset-0 pointer-events-none flex items-center justify-center text-yellow-400/80 font-bold text-lg transition-opacity duration-300 opacity-0">
+                SWIPE HERE TO MOVE
+            </div>
+
+            <!-- Overlay Screen (Start / Game Over) -->
+            <div id="overlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-6 text-center rounded z-10">
+                <h2 id="overlayTitle" class="text-2xl md:text-3xl text-yellow-400 mb-4 glow-text animate-pulse">READY!</h2>
+                <p id="overlaySub" class="text-xs text-gray-300 mb-6 leading-relaxed">Swipe screen or press PLAY</p>
+                <button id="startBtn" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-3 px-6 rounded-full text-sm transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-yellow-500/50">
+                    PLAY NOW
+                </button>
+            </div>
+        </div>
+
+        <!-- Lives & Sound Bar -->
+        <div class="w-full max-w-lg flex justify-between items-center mt-2 px-2 text-xs">
+            <div id="livesContainer" class="flex items-center gap-2 h-6">
+                <!-- Pacman life icons generated in JS -->
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="soundBtn" class="text-gray-400 hover:text-white transition-colors text-xs px-2 py-1 rounded bg-gray-900 border border-gray-800">
+                    🔊 SOUND ON
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Touch D-Pad Controls for Backup/Convenience -->
+    <div class="w-full max-w-xs my-2">
+        <div class="grid grid-cols-3 gap-2 w-48 mx-auto">
+            <div></div>
+            <button id="btnUp" class="bg-gray-800 active:bg-yellow-500 active:text-black text-white h-12 rounded-lg flex items-center justify-center text-xl font-bold border border-gray-700">▲</button>
+            <div></div>
+            <button id="btnLeft" class="bg-gray-800 active:bg-yellow-500 active:text-black text-white h-12 rounded-lg flex items-center justify-center text-xl font-bold border border-gray-700">◄</button>
+            <button id="btnDown" class="bg-gray-800 active:bg-yellow-500 active:text-black text-white h-12 rounded-lg flex items-center justify-center text-xl font-bold border border-gray-700">▼</button>
+            <button id="btnRight" class="bg-gray-800 active:bg-yellow-500 active:text-black text-white h-12 rounded-lg flex items-center justify-center text-xl font-bold border border-gray-700">►</button>
+        </div>
     </div>
 
+    <!-- Instructions Footer -->
+    <footer class="text-[10px] text-gray-500 text-center my-2">
+        Swipe across screen or use Arrow / WASD keys
+    </footer>
+
+    <!-- Game Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
-            const targetList = document.getElementById('target-list');
-            const addTargetBtn = document.getElementById('add-target-btn');
-            const profileOutput = document.getElementById('profile-output');
-            const networkOutput = document.getElementById('network-output');
-            const timelineOutput = document.getElementById('timeline-output');
-            const quickReconInput = document.getElementById('quick-recon');
-            const quickReconBtn = document.getElementById('quick-recon-btn');
-            const systemLog = document.getElementById('system-log');
-            const clearLogBtn = document.getElementById('clear-log-btn');
-
-            let activeTarget = null;
-            let targets = [];
-
-            // --- System Logging ---
-            function log(message, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('p');
-                logEntry.textContent = `[${timestamp}] ${message}`;
-                if (type === 'error') logEntry.style.color = 'var(--accent-red)';
-                if (type === 'success') logEntry.style.color = 'var(--accent-green)';
-                systemLog.appendChild(logEntry);
-                systemLog.scrollTop = systemLog.scrollHeight;
+        // --- Web Audio Synth Sound System ---
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                this.wakaAlt = false;
             }
 
-            // --- Target Management ---
-            function renderTargets() {
-                targetList.innerHTML = '';
-                targets.forEach(target => {
-                    const li = document.createElement('li');
-                    li.textContent = `${target.name} (${target.type})`;
-                    li.dataset.id = target.id;
-                    if (activeTarget && activeTarget.id === target.id) {
-                        li.classList.add('active');
-                    }
-                    li.addEventListener('click', () => selectTarget(target.id));
-                    targetList.appendChild(li);
-                });
-            }
-
-            function selectTarget(id) {
-                activeTarget = targets.find(t => t.id === id);
-                renderTargets();
-                if (activeTarget) {
-                    log(`Target '${activeTarget.name}' selected.`);
-                    updateMainPanels();
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
                 }
             }
-            
-            function addTarget() {
-                const name = prompt('Enter target identifier (e.g., John Doe, example.com):');
-                if (!name) return;
-                const type = prompt('Enter target type (user, domain, ip):');
-                if (!type || !['user', 'domain', 'ip'].includes(type)) return;
 
-                const newTarget = {
-                    id: Date.now(),
-                    name: name,
-                    type: type,
-                    data: null
+            playWaka() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                
+                const freq = this.wakaAlt ? 440 : 330;
+                this.wakaAlt = !this.wakaAlt;
+                
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playEatGhost() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(800, this.ctx.currentTime + 0.2);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            }
+
+            playPowerDot() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.15);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playDeath() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+
+                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + 0.8);
+
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.8);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.8);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        // --- Maze Definition (28 cols x 31 rows classic board format) ---
+        // 1: Wall, 2: Dot, 3: Power Pellet, 0: Empty, 4: Ghost Gate
+        const INITIAL_MAZE = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+            [1,3,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,3,1],
+            [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+            [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1],
+            [1,1,1,1,1,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,1,1,1,1,1],
+            [0,0,0,0,0,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,0,0,0,0,0],
+            [0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0],
+            [0,0,0,0,0,1,2,1,1,0,1,1,1,4,4,1,1,1,0,1,1,2,1,0,0,0,0,0],
+            [1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1],
+            [0,0,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,0,0,0,0,0,0],
+            [1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1],
+            [0,0,0,0,0,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,0,0,0,0,0],
+            [0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0],
+            [0,0,0,0,0,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,0,0,0,0,0],
+            [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+            [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+            [1,3,2,2,1,1,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,1,1,2,2,3,1],
+            [1,1,1,2,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,2,1,1,1],
+            [1,1,1,2,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,2,1,1,1],
+            [1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1],
+            [1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1],
+            [1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        const COLS = 28;
+        const ROWS = 31;
+
+        // Directions
+        const DIR_NONE = {x: 0, y: 0};
+        const DIR_UP = {x: 0, y: -1};
+        const DIR_DOWN = {x: 0, y: 1};
+        const DIR_LEFT = {x: -1, y: 0};
+        const DIR_RIGHT = {x: 1, y: 0};
+
+        class Pacman {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = 13.5;
+                this.y = 23;
+                this.dir = DIR_LEFT;
+                this.nextDir = DIR_LEFT;
+                this.speed = 0.11;
+                this.mouthAngle = 0.2;
+                this.mouthSpeed = 0.04;
+            }
+
+            update(map) {
+                // Try changing direction if aligned with tile grid
+                if (this.nextDir !== this.dir) {
+                    if (this.canMove(this.nextDir, map)) {
+                        if (this.nextDir.x !== 0 && Math.abs(this.y - Math.round(this.y)) < 0.3) {
+                            this.y = Math.round(this.y);
+                            this.dir = this.nextDir;
+                        } else if (this.nextDir.y !== 0 && Math.abs(this.x - Math.round(this.x)) < 0.3) {
+                            this.x = Math.round(this.x);
+                            this.dir = this.nextDir;
+                        }
+                    }
+                }
+
+                if (this.canMove(this.dir, map)) {
+                    this.x += this.dir.x * this.speed;
+                    this.y += this.dir.y * this.speed;
+
+                    // Screen Wrap Around Tunnels
+                    if (this.x < -0.5) this.x = COLS - 0.5;
+                    if (this.x > COLS - 0.5) this.x = -0.5;
+                }
+
+                // Animate mouth
+                this.mouthAngle += this.mouthSpeed;
+                if (this.mouthAngle > 0.45 || this.mouthAngle < 0.05) {
+                    this.mouthSpeed = -this.mouthSpeed;
+                }
+            }
+
+            canMove(dir, map) {
+                const nextX = this.x + dir.x * 0.5;
+                const nextY = this.y + dir.y * 0.5;
+
+                if (nextX < 0 || nextX >= COLS) return true; // wrap around zone
+
+                const tileX1 = Math.floor(this.x + dir.x * 0.45);
+                const tileY1 = Math.floor(this.y + dir.y * 0.45);
+                const tileX2 = Math.ceil(this.x + dir.x * 0.45);
+                const tileY2 = Math.ceil(this.y + dir.y * 0.45);
+
+                const t1 = map[tileY1] ? map[tileY1][tileX1] : 1;
+                const t2 = map[tileY2] ? map[tileY2][tileX2] : 1;
+
+                return (t1 !== 1 && t1 !== 4) && (t2 !== 1 && t2 !== 4);
+            }
+
+            draw(ctx, tileSize) {
+                const px = (this.x + 0.5) * tileSize;
+                const py = (this.y + 0.5) * tileSize;
+                const radius = tileSize * 0.7;
+
+                let angle = 0;
+                if (this.dir === DIR_RIGHT) angle = 0;
+                if (this.dir === DIR_DOWN) angle = Math.PI / 2;
+                if (this.dir === DIR_LEFT) angle = Math.PI;
+                if (this.dir === DIR_UP) angle = (3 * Math.PI) / 2;
+
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(
+                    px, py, radius,
+                    angle + this.mouthAngle * Math.PI,
+                    angle + (2 - this.mouthAngle) * Math.PI
+                );
+                ctx.lineTo(px, py);
+                ctx.fill();
+            }
+        }
+
+        class Ghost {
+            constructor(color, homeX, homeY, scatterX, scatterY) {
+                this.color = color;
+                this.homeX = homeX;
+                this.homeY = homeY;
+                this.scatterX = scatterX;
+                this.scatterY = scatterY;
+                this.reset();
+            }
+
+            reset() {
+                this.x = this.homeX;
+                this.y = this.homeY;
+                this.dir = DIR_UP;
+                this.speed = 0.085;
+                this.isFrightened = false;
+                this.isEaten = false;
+            }
+
+            update(map, pacman, blinky) {
+                const gridX = Math.round(this.x);
+                const gridY = Math.round(this.y);
+
+                if (Math.abs(this.x - gridX) < 0.05 && Math.abs(this.y - gridY) < 0.05) {
+                    this.x = gridX;
+                    this.y = gridY;
+
+                    let targetX = pacman.x;
+                    let targetY = pacman.y;
+
+                    if (this.isEaten) {
+                        targetX = 13.5;
+                        targetY = 11;
+                        if (gridX === 13 || gridX === 14) {
+                            if (gridY === 11) {
+                                this.isEaten = false;
+                                this.isFrightened = false;
+                            }
+                        }
+                    } else if (this.isFrightened) {
+                        targetX = Math.floor(Math.random() * COLS);
+                        targetY = Math.floor(Math.random() * ROWS);
+                    } else {
+                        if (this.color === '#FF0000') {
+                            targetX = pacman.x;
+                            targetY = pacman.y;
+                        } else if (this.color === '#FFB8FF') {
+                            targetX = pacman.x + pacman.dir.x * 4;
+                            targetY = pacman.y + pacman.dir.y * 4;
+                        } else if (this.color === '#00FFFF') {
+                            const bX = blinky ? blinky.x : pacman.x;
+                            const bY = blinky ? blinky.y : pacman.y;
+                            targetX = pacman.x + (pacman.x - bX);
+                            targetY = pacman.y + (pacman.y - bY);
+                        } else if (this.color === '#FFB852') {
+                            const dist = Math.hypot(this.x - pacman.x, this.y - pacman.y);
+                            if (dist > 8) {
+                                targetX = pacman.x;
+                                targetY = pacman.y;
+                            } else {
+                                targetX = this.scatterX;
+                                targetY = this.scatterY;
+                            }
+                        }
+                    }
+
+                    this.chooseDirection(map, targetX, targetY);
+                }
+
+                const currentSpeed = this.isFrightened ? this.speed * 0.6 : (this.isEaten ? this.speed * 1.8 : this.speed);
+                this.x += this.dir.x * currentSpeed;
+                this.y += this.dir.y * currentSpeed;
+
+                if (this.x < -0.5) this.x = COLS - 0.5;
+                if (this.x > COLS - 0.5) this.x = -0.5;
+            }
+
+            chooseDirection(map, targetX, targetY) {
+                const possibleDirs = [DIR_UP, DIR_LEFT, DIR_DOWN, DIR_RIGHT];
+                let bestDir = this.dir;
+                let minDist = Infinity;
+
+                for (let d of possibleDirs) {
+                    if (d.x === -this.dir.x && d.y === -this.dir.y) continue;
+
+                    const nextTileX = Math.floor(this.x + d.x);
+                    const nextTileY = Math.floor(this.y + d.y);
+
+                    if (nextTileX >= 0 && nextTileX < COLS && nextTileY >= 0 && nextTileY < ROWS) {
+                        const tileVal = map[nextTileY][nextTileX];
+                        if (tileVal !== 1 && (tileVal !== 4 || this.isEaten || this.y < 12)) {
+                            const dist = Math.hypot(nextTileX - targetX, nextTileY - targetY);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                bestDir = d;
+                            }
+                        }
+                    }
+                }
+                this.dir = bestDir;
+            }
+
+            draw(ctx, tileSize, frightenedFlash) {
+                const px = (this.x + 0.5) * tileSize;
+                const py = (this.y + 0.5) * tileSize;
+                const r = tileSize * 0.7;
+
+                ctx.save();
+                ctx.translate(px, py);
+
+                if (this.isEaten) {
+                    this.drawEyes(ctx, r);
+                } else {
+                    ctx.fillStyle = this.isFrightened ? (frightenedFlash ? '#FFFFFF' : '#0000FF') : this.color;
+                    ctx.beginPath();
+                    ctx.arc(0, -r * 0.2, r, Math.PI, 0, false);
+                    ctx.lineTo(r, r);
+                    
+                    const waves = 3;
+                    const waveW = (r * 2) / waves;
+                    for (let i = 0; i < waves; i++) {
+                        ctx.quadraticCurveTo(r - (i + 0.5) * waveW, r - 4, r - (i + 1) * waveW, r);
+                    }
+                    ctx.lineTo(-r, -r * 0.2);
+                    ctx.fill();
+
+                    this.drawEyes(ctx, r);
+                }
+
+                ctx.restore();
+            }
+
+            drawEyes(ctx, r) {
+                ctx.fillStyle = '#FFF';
+                ctx.beginPath();
+                ctx.arc(-r * 0.35, -r * 0.2, r * 0.3, 0, Math.PI * 2);
+                ctx.arc(r * 0.35, -r * 0.2, r * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                const eyeX = this.dir.x * (r * 0.12);
+                const eyeY = this.dir.y * (r * 0.12);
+
+                ctx.fillStyle = this.isFrightened ? '#FFB852' : '#0000FF';
+                ctx.beginPath();
+                ctx.arc(-r * 0.35 + eyeX, -r * 0.2 + eyeY, r * 0.15, 0, Math.PI * 2);
+                ctx.arc(r * 0.35 + eyeX, -r * 0.2 + eyeY, r * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // --- Game Engine Class ---
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.overlay = document.getElementById('overlay');
+                this.overlayTitle = document.getElementById('overlayTitle');
+                this.overlaySub = document.getElementById('overlaySub');
+                this.startBtn = document.getElementById('startBtn');
+                this.scoreEl = document.getElementById('score');
+                this.highScoreEl = document.getElementById('highScore');
+                this.levelEl = document.getElementById('level');
+                this.livesContainer = document.getElementById('livesContainer');
+                this.soundBtn = document.getElementById('soundBtn');
+
+                this.score = 0;
+                this.highScore = parseInt(localStorage.getItem('pacman_high_score') || '0', 10);
+                this.level = 1;
+                this.lives = 3;
+                this.state = 'INIT';
+
+                this.pacman = new Pacman();
+                this.ghosts = [
+                    new Ghost('#FF0000', 13.5, 11, 27, 0),  // Blinky
+                    new Ghost('#FFB8FF', 13.5, 14, 0, 0),   // Pinky
+                    new Ghost('#00FFFF', 11.5, 14, 27, 31), // Inky
+                    new Ghost('#FFB852', 15.5, 14, 0, 31)   // Clyde
+                ];
+
+                this.frightenedTimer = 0;
+                this.frightenedCombo = 0;
+                this.dotsRemaining = 0;
+
+                this.initResize();
+                this.resetMaze();
+                this.bindEvents();
+                this.updateUI();
+
+                this.loop = this.loop.bind(this);
+                requestAnimationFrame(this.loop);
+            }
+
+            initResize() {
+                const maxW = Math.min(window.innerWidth - 24, 448);
+                const scale = Math.floor(maxW / COLS);
+                this.tileSize = Math.max(scale, 12);
+                
+                this.canvas.width = COLS * this.tileSize;
+                this.canvas.height = ROWS * this.tileSize;
+            }
+
+            resetMaze() {
+                this.map = JSON.parse(JSON.stringify(INITIAL_MAZE));
+                this.dotsRemaining = 0;
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        if (this.map[r][c] === 2 || this.map[r][c] === 3) {
+                            this.dotsRemaining++;
+                        }
+                    }
+                }
+            }
+
+            start() {
+                sound.init();
+                if (this.state === 'GAMEOVER' || this.dotsRemaining === 0) {
+                    this.score = 0;
+                    this.lives = 3;
+                    this.level = 1;
+                    this.resetMaze();
+                }
+
+                this.pacman.reset();
+                this.ghosts.forEach(g => g.reset());
+                this.state = 'PLAYING';
+                this.overlay.classList.add('hidden');
+                this.updateUI();
+            }
+
+            setDirection(dir) {
+                if (this.state === 'PLAYING') {
+                    this.pacman.nextDir = dir;
+                }
+            }
+
+            bindEvents() {
+                window.addEventListener('resize', () => this.initResize());
+
+                // Keyboard Controls
+                window.addEventListener('keydown', (e) => {
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                        e.preventDefault();
+                    }
+
+                    sound.init();
+
+                    if (this.state !== 'PLAYING' && e.key === ' ') {
+                        this.start();
+                        return;
+                    }
+
+                    switch (e.key) {
+                        case 'ArrowUp': case 'w': case 'W':
+                            this.setDirection(DIR_UP); break;
+                        case 'ArrowDown': case 's': case 'S':
+                            this.setDirection(DIR_DOWN); break;
+                        case 'ArrowLeft': case 'a': case 'A':
+                            this.setDirection(DIR_LEFT); break;
+                        case 'ArrowRight': case 'd': case 'D':
+                            this.setDirection(DIR_RIGHT); break;
+                    }
+                });
+
+                // Start button click
+                this.startBtn.addEventListener('click', () => this.start());
+
+                // Sound Button toggle
+                this.soundBtn.addEventListener('click', () => {
+                    sound.muted = !sound.muted;
+                    this.soundBtn.innerText = sound.muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+                });
+
+                // Onscreen Button Control Handlers
+                const setupButton = (id, dir) => {
+                    const btn = document.getElementById(id);
+                    if (!btn) return;
+                    const trigger = (e) => {
+                        e.preventDefault();
+                        sound.init();
+                        if (this.state !== 'PLAYING') {
+                            this.start();
+                        }
+                        this.setDirection(dir);
+                    };
+                    btn.addEventListener('touchstart', trigger, { passive: false });
+                    btn.addEventListener('click', trigger);
                 };
-                targets.push(newTarget);
-                renderTargets();
-                log(`New target '${name}' added.`, 'success');
-                selectTarget(newTarget.id);
+
+                setupButton('btnUp', DIR_UP);
+                setupButton('btnDown', DIR_DOWN);
+                setupButton('btnLeft', DIR_LEFT);
+                setupButton('btnRight', DIR_RIGHT);
+
+                // --- ADVANCED TOUCH / SWIPE DETECTOR ---
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let touchStartTime = 0;
+
+                const handleTouchStart = (e) => {
+                    sound.init();
+                    const touch = e.touches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    touchStartTime = Date.now();
+                };
+
+                const handleTouchEnd = (e) => {
+                    if (e.changedTouches.length === 0) return;
+                    
+                    const touch = e.changedTouches[0];
+                    const deltaX = touch.clientX - touchStartX;
+                    const deltaY = touch.clientY - touchStartY;
+                    const deltaTime = Date.now() - touchStartTime;
+
+                    const minSwipeDist = 20; // minimal swipe sensitivity threshold in px
+                    const absX = Math.abs(deltaX);
+                    const absY = Math.abs(deltaY);
+
+                    if (this.state !== 'PLAYING') {
+                        if (absX > minSwipeDist || absY > minSwipeDist) {
+                            this.start();
+                        }
+                        return;
+                    }
+
+                    if (Math.max(absX, absY) >= minSwipeDist && deltaTime < 1000) {
+                        if (absX > absY) {
+                            // Horizontal Swipe
+                            this.setDirection(deltaX > 0 ? DIR_RIGHT : DIR_LEFT);
+                        } else {
+                            // Vertical Swipe
+                            this.setDirection(deltaY > 0 ? DIR_DOWN : DIR_UP);
+                        }
+                    }
+                };
+
+                // Bind touch events everywhere to canvas & arcade box
+                const touchArea = document.querySelector('main');
+                touchArea.addEventListener('touchstart', handleTouchStart, { passive: true });
+                touchArea.addEventListener('touchend', handleTouchEnd, { passive: true });
             }
 
-            // --- Main Panel Updates ---
-            function updateMainPanels() {
-                if (!activeTarget) return;
+            update() {
+                if (this.state !== 'PLAYING') return;
 
-                // Profile Panel
-                profileOutput.textContent = `[PROFILE RECON FOR: ${activeTarget.name}]\n`;
-                profileOutput.textContent += `> Type: ${activeTarget.type}\n`;
-                profileOutput.textContent += `> Status: Awaiting deep scan...\n`;
-                // In a real app, you'd call the liveRecon function from the previous module here.
-                // For now, we simulate it.
-                setTimeout(() => {
-                    profileOutput.textContent += `\n> SCAN COMPLETE.\n`;
-                    if(activeTarget.type === 'user') profileOutput.textContent += `> Found 3 social profiles.\n> Behavioral analysis: High privacy awareness.\n`;
-                    if(activeTarget.type === 'domain') profileOutput.textContent += `> WHOIS: Registered with GoDaddy.\n> DNS: Points to AWS servers.\n`;
-                    if(activeTarget.type === 'ip') profileOutput.textContent += `> GEO: New York, USA (ISP: Verizon).\n> HOST: Likely a residential connection.\n`;
-                }, 1500);
+                // Update Pacman position
+                this.pacman.update(this.map);
 
-                // Network Panel
-                networkOutput.textContent = `[NETWORK ANALYSIS FOR: ${activeTarget.name}]\n`;
-                networkOutput.textContent += `> Pinging host...\n`;
-                setTimeout(() => {
-                    networkOutput.textContent += `> Host is ONLINE.\n> Open Ports: 22 (SSH), 80 (HTTP), 443 (HTTPS).\n`;
-                }, 1000);
+                // Tile interactions (Dots / Power Pellets)
+                const tileX = Math.round(this.pacman.x);
+                const tileY = Math.round(this.pacman.y);
 
-                // Timeline Panel
-                timelineOutput.textContent = `[MISSION TIMELINE: ${activeTarget.name}]\n`;
-                timelineOutput.textContent += `> Objective: Surveillance.\n`;
-                timelineOutput.textContent += `> Phase 1: Establish digital profile. [COMPLETE]\n`;
-                timelineOutput.textContent += `> Phase 2: Map physical network. [IN PROGRESS]\n`;
-                timelineOutput.textContent += `> Phase 3: Identify patterns. [PENDING]\n`;
-            }
+                if (tileY >= 0 && tileY < ROWS && tileX >= 0 && tileX < COLS) {
+                    const cell = this.map[tileY][tileX];
 
-            // --- Event Listeners ---
-            addTargetBtn.addEventListener('click', addTarget);
-            quickReconBtn.addEventListener('click', () => {
-                const query = quickReconInput.value;
-                if (!query) {
-                    log('Quick Recon requires input.', 'error');
+                    if (cell === 2) {
+                        this.map[tileY][tileX] = 0;
+                        this.score += 10;
+                        this.dotsRemaining--;
+                        sound.playWaka();
+                    } else if (cell === 3) {
+                        this.map[tileY][tileX] = 0;
+                        this.score += 50;
+                        this.dotsRemaining--;
+                        this.frightenedTimer = 350;
+                        this.frightenedCombo = 0;
+                        this.ghosts.forEach(g => { g.isFrightened = true; });
+                        sound.playPowerDot();
+                    }
+                }
+
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('pacman_high_score', this.highScore.toString());
+                }
+
+                if (this.dotsRemaining <= 0) {
+                    this.level++;
+                    this.resetMaze();
+                    this.pacman.reset();
+                    this.ghosts.forEach(g => g.reset());
                     return;
                 }
-                log(`Running Quick Recon on: ${query}`);
-                // This would trigger the same logic as adding a target and running the scan
-                profileOutput.textContent = `[QUICK RECON: ${query}]\n> Running scan...`;
-                 setTimeout(() => {
-                    profileOutput.textContent += `\n> SCAN COMPLETE.\n> Public data found for query.\n`;
-                }, 1500);
-            });
 
-            clearLogBtn.addEventListener('click', () => {
-                systemLog.innerHTML = '<p>[SYSTEM] Log cleared.</p>';
-            });
+                if (this.frightenedTimer > 0) {
+                    this.frightenedTimer--;
+                    if (this.frightenedTimer === 0) {
+                        this.ghosts.forEach(g => { g.isFrightened = false; });
+                    }
+                }
 
-            // --- Initial State ---
-            log('Command Center initialized. Awaiting directives.');
+                // Update Ghosts
+                const blinky = this.ghosts[0];
+                this.ghosts.forEach(ghost => {
+                    ghost.update(this.map, this.pacman, blinky);
 
-        });
+                    const dist = Math.hypot(ghost.x - this.pacman.x, ghost.y - this.pacman.y);
+                    if (dist < 0.6) {
+                        if (ghost.isFrightened && !ghost.isEaten) {
+                            ghost.isEaten = true;
+                            ghost.isFrightened = false;
+                            this.frightenedCombo++;
+                            const points = Math.pow(2, this.frightenedCombo) * 100;
+                            this.score += points;
+                            sound.playEatGhost();
+                        } else if (!ghost.isEaten) {
+                            this.handleDeath();
+                        }
+                    }
+                });
+
+                this.updateUI();
+            }
+
+            handleDeath() {
+                sound.playDeath();
+                this.lives--;
+                this.updateUI();
+
+                if (this.lives <= 0) {
+                    this.state = 'GAMEOVER';
+                    this.overlayTitle.innerText = 'GAME OVER';
+                    this.overlaySub.innerText = `FINAL SCORE: ${this.score}`;
+                    this.startBtn.innerText = 'PLAY AGAIN';
+                    this.overlay.classList.remove('hidden');
+                } else {
+                    this.pacman.reset();
+                    this.ghosts.forEach(g => g.reset());
+                }
+            }
+
+            updateUI() {
+                this.scoreEl.innerText = this.score;
+                this.highScoreEl.innerText = this.highScore;
+                this.levelEl.innerText = this.level;
+
+                this.livesContainer.innerHTML = '';
+                for (let i = 0; i < this.lives; i++) {
+                    const life = document.createElement('div');
+                    life.className = 'w-4 h-4 bg-yellow-400 rounded-full clip-pacman';
+                    life.style.clipPath = 'polygon(100% 0%, 100% 35%, 50% 50%, 100% 65%, 100% 100%, 0% 100%, 0% 0%)';
+                    this.livesContainer.appendChild(life);
+                }
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const cell = this.map[r][c];
+                        const x = c * this.tileSize;
+                        const y = r * this.tileSize;
+
+                        if (cell === 1) {
+                            this.ctx.fillStyle = '#1919A6';
+                            this.ctx.fillRect(x, y, this.tileSize, this.tileSize);
+                            
+                            this.ctx.fillStyle = '#000';
+                            this.ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                        } else if (cell === 2) {
+                            this.ctx.fillStyle = '#FFB8AE';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + this.tileSize / 2, y + this.tileSize / 2, this.tileSize * 0.15, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        } else if (cell === 3) {
+                            this.ctx.fillStyle = '#FFB8AE';
+                            this.ctx.beginPath();
+                            this.ctx.arc(x + this.tileSize / 2, y + this.tileSize / 2, this.tileSize * 0.35, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        } else if (cell === 4) {
+                            this.ctx.fillStyle = '#FFB8FF';
+                            this.ctx.fillRect(x, y + this.tileSize * 0.4, this.tileSize, this.tileSize * 0.2);
+                        }
+                    }
+                }
+
+                if (this.state === 'PLAYING') {
+                    this.pacman.draw(this.ctx, this.tileSize);
+                    const frightenedFlash = this.frightenedTimer < 100 && Math.floor(this.frightenedTimer / 10) % 2 === 0;
+                    this.ghosts.forEach(ghost => ghost.draw(this.ctx, this.tileSize, frightenedFlash));
+                }
+            }
+
+            loop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(this.loop);
+            }
+        }
+
+        window.onload = () => {
+            new Game();
+        };
     </script>
 </body>
 </html>
+
